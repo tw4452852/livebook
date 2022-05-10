@@ -99,6 +99,9 @@ defmodule Livebook.MixProject do
       {:aws_signature, "~> 0.2.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:floki, ">= 0.27.0", only: :test},
+      {:kino, "~> 0.6.0"},
+      {:vega_lite, "~> 0.1.4"},
+      {:kino_vega_lite, "~> 0.1.1"},
       {:bypass, "~> 2.1", only: :test}
     ]
   end
