@@ -4,6 +4,7 @@ defmodule Livebook.Tracker do
   use Phoenix.Tracker
 
   alias Livebook.Session
+  alias Livebook.Users.User
 
   @name __MODULE__
 
@@ -60,6 +61,45 @@ defmodule Livebook.Tracker do
     end
   end
 
+  @user_open_topic "user_opens"
+
+  @doc """
+  Starts tracking each user's open.
+  This must be called on on_mount of a liveview because we use self() for id.
+  """
+  @spec track_user_open(User.t()) :: :ok | {:error, any()}
+  def track_user_open(user) do
+    case Phoenix.Tracker.track(@name, self(), @user_open_topic, self(), %{
+           user: user
+         }) do
+      {:ok, _ref} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Update the tracked open's user profile.
+  This must be called on on_mount of a liveview because we use self() for id.
+  """
+  @spec update_user_open(User.t()) :: :ok | {:error, any()}
+  def update_user_open(user) do
+    case Phoenix.Tracker.update(@name, self(), @user_open_topic, self(), %{
+           user: user
+         }) do
+      {:ok, _ref} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Count all opens grouped by user.
+  """
+  @spec list_opens() :: %{User.t() => integer()}
+  def list_opens() do
+    Phoenix.Tracker.list(@name, @user_open_topic)
+    |> Enum.frequencies_by(fn {_id, %{user: user}} -> user end)
+  end
+
   @impl true
   def init(opts) do
     server = Keyword.fetch!(opts, :pubsub_server)
@@ -96,5 +136,14 @@ defmodule Livebook.Tracker do
         message
       )
     end
+  end
+
+  defp handle_topic_diff(@user_open_topic, {_open, _close} = _diff, state) do
+    Phoenix.PubSub.direct_broadcast!(
+        state.node_name,
+        state.pubsub_server,
+        "tracker_opens",
+        {:opens_change}
+      )
   end
 end

@@ -40,6 +40,10 @@ defmodule LivebookWeb.HomeLive do
     <div class="flex grow h-full">
       <.live_region role="alert" />
       <SidebarHelpers.sidebar>
+        <SidebarHelpers.button_item
+          icon="group-fill"
+          label="Opens"
+          button_attrs={[phx_click: show_opens_modal()]} />
         <SidebarHelpers.shared_home_footer socket={@socket} current_user={@current_user} />
       </SidebarHelpers.sidebar>
       <div class="grow overflow-y-auto">
@@ -122,6 +126,7 @@ defmodule LivebookWeb.HomeLive do
     </div>
 
     <.current_user_modal current_user={@current_user} />
+    <.opens_modal socket={@socket} />
 
     <%= if @live_action == :close_session do %>
       <.modal id="close-session-modal" show class="w-full max-w-xl" patch={@self_path}>

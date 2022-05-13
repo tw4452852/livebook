@@ -63,4 +63,14 @@ defmodule LivebookWeb.UserHelpers do
   def show_current_user_modal(js \\ %JS{}), do: show_modal(js, "user-modal")
 
   def hide_current_user_modal(js \\ %JS{}), do: hide_modal(js, "user-modal")
+
+  def opens_modal(assigns) do
+    ~H"""
+    <.modal id="opens-modal" class="w-full max-w-sm">
+      <%= live_render(@socket, LivebookWeb.OpensLive, id: "opens") %>
+    </.modal>
+    """
+  end
+
+  def show_opens_modal(js \\ %JS{}), do: show_modal(js, "opens-modal")
 end

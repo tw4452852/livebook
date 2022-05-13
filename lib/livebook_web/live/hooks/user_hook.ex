@@ -10,7 +10,10 @@ defmodule LivebookWeb.UserHook do
 
     socket =
       socket
-      |> assign_new(:current_user, fn -> build_current_user(session, socket) end)
+      |> assign_new(:current_user, fn ->
+        build_current_user(session, socket)
+        |> tap(&Livebook.Tracker.track_user_open(&1))
+      end)
       |> attach_hook(:current_user_subscription, :handle_info, &info/2)
 
     {:cont, socket}
@@ -20,6 +23,7 @@ defmodule LivebookWeb.UserHook do
          {:user_change, %{id: id} = user},
          %{assigns: %{current_user: %{id: id}}} = socket
        ) do
+    Livebook.Tracker.update_user_open(user)
     {:cont, assign(socket, :current_user, user)}
   end
 
